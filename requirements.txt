@@ -1,3 +1,11 @@
+async-timeout==4.0.2
 Django==1.11.28
+importlib-metadata==4.8.3
+packaging==21.3
+PyMySQL==1.0.2
+pyparsing==3.0.9
 pytz==2023.3
 qcloudsms-py==0.1.4
+redis==4.3.6
+typing_extensions==4.1.1
+zipp==3.6.0
