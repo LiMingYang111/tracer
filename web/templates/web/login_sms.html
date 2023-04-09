@@ -1,6 +1,6 @@
 {% extends 'web/layout/basic.html' %}
 {% load static %}
-{% block title %}用户注册{% endblock %}
+{% block title %}短信登录{% endblock %}
 
 {% block css %}
     <link rel="stylesheet" href="{% static 'web/css/account.css' %}">
@@ -16,9 +16,9 @@
 {% block content %}
     <div class="account">
         <div class="title">
-            用户注册
+            短信登录
         </div>
-        <form id="regForm" method="post">
+        <form id="loginForm" method="post">
             {% csrf_token %}
             {% for field in form %}
                 {% if field.name == 'code' %}
@@ -42,73 +42,54 @@
                     </div>
                 {% endif %}
             {% endfor %}
-            <button id="btnSummit" type="button" class="btn btn-primary">注 册</button>
+            <button id="btnSummit" type="button" class="btn btn-primary">登 录</button>
         </form>
     </div>
 {% endblock %}
 
 {% block js %}
     <script>
-        // 页面框架加载完后自动执行的函数
         $(function () {
             bindClickBtnSms();
             bindClickBtnSummit();
-        });
+        })
 
-        // 点击获取验证码绑定的事件
         function bindClickBtnSms() {
             $('#btnSms').click(function () {
                 $('.errmsg').empty();
-                // 获取用户输入的手机号
-                var mobilePhone = $('#id_mobile_phone').val();
-
+                var mobile_phone = $('#id_mobile_phone').val();
                 $.ajax({
-                    // url: '/web/send/sms/',
-                    url: '{% url 'web:send_sms' %}',  // 根据函数反向解析生成url，等价于/web/send/sms/
+                    url: '{% url 'web:send_sms' %}',
                     type: 'GET',
-                    data: {'mobile_phone': mobilePhone, 'tpl': 'register'},
-                    dataType: 'JSON',  // 后端返回的数据反序列化为字典
+                    data: {'mobile_phone': mobile_phone, 'tpl': 'login'},
+                    dataType: 'JSON',
                     success: function (res) {
-                        // Ajax请求发送成功后自动执行的函数，res是后端返回的数据
-                        console.log(res);
+                        // 发送成功显示倒计时
                         if (res.status) {
-                            console.log('发送成功，倒计时');
-                            $('#btnSms').prop('disabled', true);
-                            var time = 60;
-                            var remind = setInterval(function () {
-                                $('#btnSms').val(time + '秒后重新发送短信');
-
-                                time = time - 1;
-                                if (time == 0) {
-                                    clearInterval(remind);
-                                    $('#btnSms').val('点击获取验证码').prop('disabled', false);
-                                }
-                            }, 1000)
+                            setBtnSmsRemind();
                         } else {
-                            // .each是jquery提供的循环函数，循环res.error，每次执行function函数
                             $.each(res.error, function (key, value) {
-                                $('#id_' + key).next().text(value[0]);
+                                $('#id_' + key).next().text(value)
                             })
                         }
-                    },
+                    }
                 })
             })
         }
-
-        // 点击注册按钮绑定的事件
+        
         function bindClickBtnSummit() {
             $('#btnSummit').click(function () {
                 $('.errmsg').empty();
                 $.ajax({
-                    url: '{% url 'web:register' %}',
+                    url: '{% url 'web:login_sms' %}',
                     type: 'POST',
-                    data: $('#regForm').serialize(),  // serialize()函数收集表单中的所有name-val + csrf_token
+                    data: $('#loginForm').serialize(),
                     dataType: 'JSON',
                     success: function (res) {
-                        console.log(res);
                         if (res.status) {
                             location.href = res.data;
                         } else {
+                            console.log(res.error);
                             $.each(res.error, function (key, value) {
                                 $('#id_' + key).next().text(value[0]);
                             })
@@ -116,6 +97,19 @@
                     }
                 })
             })
+        }
+
+        function setBtnSmsRemind() {
+            $('#btnSms').prop('disabled', true);
+            var time = 60;
+            var remind = setInterval(function () {
+                $('#btnSms').val(time + '秒后重新发送短信');
+                time = time - 1;
+                if (time == 0) {
+                    clearInterval(remind);
+                    $('#btnSms').val('点击获取验证码').prop('disabled', false);
+                }
+            }, 1000)
         }
     </script>
 {% endblock %}

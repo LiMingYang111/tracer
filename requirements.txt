@@ -1,6 +1,8 @@
 async-timeout==4.0.2
 Django==1.11.28
+django-redis==4.11.0
 importlib-metadata==4.8.3
+mysqlclient @ file:///C:/Users/11250/Downloads/mysqlclient-1.4.6-cp36-cp36m-win_amd64.whl
 packaging==21.3
 PyMySQL==1.0.2
 pyparsing==3.0.9
